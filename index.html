@@ -2,16 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Kings MIDI Player – No Visualizer</title>
+<title>Kings MIDI Player – Working Version</title>
 
-<!-- Tone.js -->
-<script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.js"></script>
-
-<!-- Magenta -->
-<script src="https://cdn.jsdelivr.net/npm/@magenta/music@1.23.1/es6/core.js"></script>
-
-<!-- html-midi-player (UMD build, required for <midi-player>) -->
-<script src="https://unpkg.com/html-midi-player@1.4.0/dist/html-midi-player.js"></script>
+<!-- html-midi-player (ES module build — the ONLY working version) -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/html-midi-player@1.5.0/dist/html-midi-player.esm.js"></script>
 
 <style>
     body {
@@ -65,11 +59,8 @@
 
 <body>
 
-<h1>Kings MIDI Player – No Visualizer</h1>
+<h1>Kings MIDI Player – Working Version</h1>
 
-<!-- ===================================================== -->
-<!-- MAJOR WORK 1 -->
-<!-- ===================================================== -->
 <h2>Te Deum</h2>
 
 <!-- MOVEMENT 1 -->
@@ -93,7 +84,7 @@
     </div>
 
     <midi-player id="mw1m1-player"
-        src="midis/MW1-M1-Balanced.mid"
+        src="midis/Te-Deum.mid"
         sound-font></midi-player>
 </div>
 
@@ -122,9 +113,6 @@
         sound-font></midi-player>
 </div>
 
-<!-- ===================================================== -->
-<!-- MAJOR WORK 2 -->
-<!-- ===================================================== -->
 <h2>Major Work 2</h2>
 
 <!-- MOVEMENT 1 -->
@@ -151,10 +139,6 @@
         src="midis/MW2-M1-Balanced.mid"
         sound-font></midi-player>
 </div>
-
-<!-- ===================================================== -->
-<!-- DOWNLOAD TABLE -->
-<!-- ===================================================== -->
 
 <h2>Download MIDI Files</h2>
 
@@ -215,5 +199,4 @@ function wireMovement(prefix) {
 </script>
 
 </body>
-
 </html>
