@@ -1,210 +1,162 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 3.2//en">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+
 <meta charset="UTF-8">
-<title>Kings MIDI Player – Working Version</title>
+<title>Kings MIDI Player</title>
 <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.4.0"></script>
 
-Add a player and (optionally) a visualizer:
-
-<midi-player
-  src="midis/Te-Deum.mid">
-</midi-player>
 
 <style>
     body {
         font-family: Arial, sans-serif;
-        max-width: 850px;
-        margin: 30px auto;
-        line-height: 1.4;
+        max-width: 800px;
+        margin: 40px auto;
+        line-height: 1.6;
     }
-
-    h1 { margin-bottom: 10px; }
-
     h2 {
-        margin-top: 30px;
+        margin-top: 40px;
+    }
+    .block {
+        padding: 20px 0;
         border-bottom: 2px solid #ccc;
-        padding-bottom: 5px;
     }
-
-    .movement {
-        margin: 12px 0;
-        padding: 8px 0;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    select { padding: 3px; }
-
-    midi-player { margin-top: 6px; }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 30px;
-    }
-
-    td { padding: 6px; }
-
-    td:first-child {
+    label {
         font-weight: bold;
-        width: 30%;
     }
-
-    td a { text-decoration: none; }
+    .controls {
+        margin-top: 10px;
+    }
+    .matrix {
+        margin-top: 40px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
 </style>
 </head>
 
+<midi-player
+  src="https://magenta.github.io/magenta-js/music/demos/melody.mid">
+</midi-player>
+
+
+<midi-player
+  src="http://donna.huffmancoding.com/choirx/midis/Chickadee.mid">
+</midi-player>
+
+<midi-player
+  src="https://donnahuffman.github.io/midis/Te-Deum.mid">
+</midi-player>
+
+
+
 <body>
 
-<h1>Kings MIDI Player – Working Version</h1>
+<h1>Kings MIDI Player</h1>
 
-<h2>Te Deum</h2>
+<!-- ========================= -->
+<!-- 1st SONG BLOCK -->
+<!-- ========================= -->
+<div class="block">
+    <h2>1st Song</h2>
 
-<!-- MOVEMENT 1 -->
-<div class="movement">
-    <div class="row">
-        <strong>1st Movement</strong>
+    <label for="song1-select">1st Song:</label>
+    <select id="song1-select">
+        <option value="midis/1stSong-Balanced.mid">Balanced</option>
+        <option value="midis/1stSong-Soprano.mid">Soprano</option>
+        <option value="midis/1stSong-Alto.mid">Alto</option>
+        <option value="midis/1stSong-Tenor.mid">Tenor</option>
+        <option value="midis/1stSong-Bass.mid">Bass</option>
+    </select>
 
-        <select id="mw1m1-select">
-            <option value="midis/Te-Deum.mid">Balanced</option>
-            <option value="midis/MW1-M1-Soprano.mid">Soprano</option>
-            <option value="midis/MW1-M1-Alto.mid">Alto</option>
-            <option value="midis/MW1-M1-Tenor.mid">Tenor</option>
-            <option value="midis/MW1-M1-Bass.mid">Bass</option>
-        </select>
+    <midi-player id="player1" sound-font visualizer="#viz1"></midi-player>
+    <midi-visualizer type="piano-roll" id="viz1"></midi-visualizer>
 
-        <label>Pan</label>
-        <input type="range" id="mw1m1-pan" min="-1" max="1" step="0.01" value="0" style="width:120px;">
+    <div class="controls">
+        <label>Pan:</label><br>
+        <input type="range" id="pan1" min="-1" max="1" step="0.01" value="0">
+        <br><br>
 
-        <label>Speed</label>
-        <input type="range" id="mw1m1-speed" min="0.5" max="1.5" step="0.01" value="1" style="width:120px;">
+        <label>Speed (50%â€“150%):</label><br>
+        <input type="range" id="speed1" min="0.5" max="1.5" step="0.01" value="1">
     </div>
-
-    <midi-player id="mw1m1-player"
-        src="midis/Te-Deum.mid"
-        sound-font></midi-player>
 </div>
 
-<!-- MOVEMENT 2 -->
-<div class="movement">
-    <div class="row">
-        <strong>2nd Movement</strong>
+<!-- ========================= -->
+<!-- 2nd SONG BLOCK -->
+<!-- ========================= -->
+<div class="block">
+    <h2>2nd Song</h2>
 
-        <select id="mw1m2-select">
-            <option value="midis/MW1-M2-Balanced.mid">Balanced</option>
-            <option value="midis/MW1-M2-Soprano.mid">Soprano</option>
-            <option value="midis/MW1-M2-Alto.mid">Alto</option>
-            <option value="midis/MW1-M2-Tenor.mid">Tenor</option>
-            <option value="midis/MW1-M2-Bass.mid">Bass</option>
-        </select>
+    <label for="song2-select">2nd Song:</label>
+    <select id="song2-select">
+        <option value="midis/2ndSong-Balanced.mid">Balanced</option>
+        <option value="midis/2ndSong-Soprano.mid">Soprano</option>
+        <option value="midis/2ndSong-Alto.mid">Alto</option>
+        <option value="midis/2ndSong-Tenor.mid">Tenor</option>
+        <option value="midis/2ndSong-Bass.mid">Bass</option>
+    </select>
 
-        <label>Pan</label>
-        <input type="range" id="mw1m2-pan" min="-1" max="1" step="0.01" value="0" style="width:120px;">
+    <midi-player id="player2" sound-font visualizer="#viz2"></midi-player>
+    <midi-visualizer type="piano-roll" id="viz2"></midi-visualizer>
 
-        <label>Speed</label>
-        <input type="range" id="mw1m2-speed" min="0.5" max="1.5" step="0.01" value="1" style="width:120px;">
+    <div class="controls">
+        <label>Pan:</label><br>
+        <input type="range" id="pan2" min="-1" max="1" step="0.01" value="0">
+        <br><br>
+
+        <label>Speed (50%â€“150%):</label><br>
+        <input type="range" id="speed2" min="0.5" max="1.5" step="0.01" value="1">
     </div>
-
-    <midi-player id="mw1m2-player"
-        src="midis/MW1-M2-Balanced.mid"
-        sound-font></midi-player>
 </div>
 
-<h2>Major Work 2</h2>
-
-<!-- MOVEMENT 1 -->
-<div class="movement">
-    <div class="row">
-        <strong>1st Movement</strong>
-
-        <select id="mw2m1-select">
-            <option value="midis/MW2-M1-Balanced.mid">Balanced</option>
-            <option value="midis/MW2-M1-Soprano.mid">Soprano</option>
-            <option value="midis/MW2-M1-Alto.mid">Alto</option>
-            <option value="midis/MW2-M1-Tenor.mid">Tenor</option>
-            <option value="midis/MW2-M1-Bass.mid">Bass</option>
-        </select>
-
-        <label>Pan</label>
-        <input type="range" id="mw2m1-pan" min="-1" max="1" step="0.01" value="0" style="width:120px;">
-
-        <label>Speed</label>
-        <input type="range" id="mw2m1-speed" min="0.5" max="1.5" step="0.01" value="1" style="width:120px;">
-    </div>
-
-    <midi-player id="mw2m1-player"
-        src="midis/MW2-M1-Balanced.mid"
-        sound-font></midi-player>
-</div>
-
+<!-- ========================= -->
+<!-- MATRIX OF DIRECT LINKS -->
+<!-- ========================= -->
 <h2>Download MIDI Files</h2>
 
-<table>
-    <tr>
-        <td>1st Movement</td>
-        <td><a href="midis/MW1-M1-Balanced.mid">Balanced</a></td>
-        <td><a href="midis/MW1-M1-Soprano.mid">Soprano</a></td>
-        <td><a href="midis/MW1-M1-Alto.mid">Alto</a></td>
-        <td><a href="midis/MW1-M1-Tenor.mid">Tenor</a></td>
-        <td><a href="midis/MW1-M1-Bass.mid">Bass</a></td>
-    </tr>
+<div class="matrix">
+    <a href="midis/1stSong-Balanced.mid">1st Balanced</a>
+    <a href="midis/1stSong-Soprano.mid">1st Soprano</a>
+    <a href="midis/1stSong-Alto.mid">1st Alto</a>
+    <a href="midis/1stSong-Tenor.mid">1st Tenor</a>
+    <a href="midis/1stSong-Bass.mid">1st Bass</a>
 
-    <tr>
-        <td>2nd Movement</td>
-        <td><a href="midis/MW1-M2-Balanced.mid">Balanced</a></td>
-        <td><a href="midis/MW1-M2-Soprano.mid">Soprano</a></td>
-        <td><a href="midis/MW1-M2-Alto.mid">Alto</a></td>
-        <td><a href="midis/MW1-M2-Tenor.mid">Tenor</a></td>
-        <td><a href="midis/MW1-M2-Bass.mid">Bass</a></td>
-    </tr>
-
-    <tr>
-        <td>1st Movement (MW2)</td>
-        <td><a href="midis/MW2-M1-Balanced.mid">Balanced</a></td>
-        <td><a href="midis/MW2-M1-Soprano.mid">Soprano</a></td>
-        <td><a href="midis/MW2-M1-Alto.mid">Alto</a></td>
-        <td><a href="midis/MW2-M1-Tenor.mid">Tenor</a></td>
-        <td><a href="midis/MW2-M1-Bass.mid">Bass</a></td>
-    </tr>
-</table>
+    <a href="midis/2ndSong-Balanced.mid">2nd Balanced</a>
+    <a href="midis/2ndSong-Soprano.mid">2nd Soprano</a>
+    <a href="midis/2ndSong-Alto.mid">2nd Alto</a>
+    <a href="midis/2ndSong-Tenor.mid">2nd Tenor</a>
+    <a href="midis/2ndSong-Bass.mid">2nd Bass</a>
+</div>
 
 <script>
-function wireMovement(prefix) {
-    const playerEl = document.getElementById(prefix + "-player");
-    const selectEl = document.getElementById(prefix + "-select");
-    const panEl    = document.getElementById(prefix + "-pan");
-    const speedEl  = document.getElementById(prefix + "-speed");
+// --- 1st Song ---
+document.getElementById("song1-select").addEventListener("change", e => {
+    document.getElementById("player1").src = e.target.value;
+});
 
-    selectEl.addEventListener("change", e => {
-        playerEl.src = e.target.value;
-    });
+document.getElementById("pan1").addEventListener("input", e => {
+    document.getElementById("player1").player.output.gainNode.pan.value = e.target.value;
+});
 
-    panEl.addEventListener("input", e => {
-        const p = playerEl.player;
-        if (!p || !p.output || !p.output.gainNode || !p.output.gainNode.pan) return;
-        p.output.gainNode.pan.value = parseFloat(e.target.value);
-    });
+document.getElementById("speed1").addEventListener("input", e => {
+    document.getElementById("player1").playbackRate = e.target.value;
+});
 
-    speedEl.addEventListener("input", e => {
-        const p = playerEl.player;
-        if (!p) return;
-        p.playbackRate = parseFloat(e.target.value);
-    });
-}
+// --- 2nd Song ---
+document.getElementById("song2-select").addEventListener("change", e => {
+    document.getElementById("player2").src = e.target.value;
+});
 
-["mw1m1", "mw1m2", "mw2m1"].forEach(wireMovement);
+document.getElementById("pan2").addEventListener("input", e => {
+    document.getElementById("player2").player.output.gainNode.pan.value = e.target.value;
+});
+
+document.getElementById("speed2").addEventListener("input", e => {
+    document.getElementById("player2").playbackRate = e.target.value;
+});
 </script>
 
 </body>
-</html>
-
-
-
-
+</html>["mw1m1", "mw1m2", "mw2m1"].
