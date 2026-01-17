@@ -3,10 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <title>Kings MIDI Player – Working Version</title>
+<script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.4.0"></script>
 
-<!-- html-midi-player (UMD build — works on GitHub Pages) -->
-<midi-soundfont sound-font></midi-soundfont>
-<script src="https://cdn.jsdelivr.net/npm/html-midi-player@1.4.0/dist/html-midi-player.js"></script>
+Add a player and (optionally) a visualizer:
+
+<midi-player
+  src="https://magenta.github.io/magenta-js/music/demos/melody.mid"
+  sound-font visualizer="#myVisualizer">
+</midi-player>
+<midi-visualizer type="piano-roll" id="myVisualizer"></midi-visualizer>
+
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -200,5 +206,6 @@ function wireMovement(prefix) {
 
 </body>
 </html>
+
 
 
