@@ -2,33 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Te Deum Practice Player</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .player-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); width: 360px; }
-        h2 { margin-top: 0; color: #333; font-size: 1.4rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .player-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 360px; }
+        h2 { margin: 0 0 1.5rem 0; color: #1a1a1a; text-align: center; font-size: 1.3rem; }
         .control-group { margin-bottom: 1.2rem; }
-        label { display: block; margin-bottom: 0.4rem; font-weight: bold; font-size: 0.85rem; color: #555; }
+        label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.8rem; color: #666; text-transform: uppercase; }
         select, input[type="range"] { width: 100%; cursor: pointer; }
-        .btn-main { width: 100%; padding: 14px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 1rem; }
-        .btn-main:hover { background: #218838; }
-        .status-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; margin-top: 4px; }
+        .btn-main { width: 100%; padding: 14px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; }
+        .status-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; margin-top: 5px; }
+        #errorMessage { color: #d93025; font-size: 0.75rem; margin-top: 10px; text-align: center; display: none; padding: 5px; background: #fce8e6; }
     </style>
 </head>
 <body>
 
 <div class="player-card">
-    <h2>Te Deum Player</h2>
+    <h2>Te Deum Practice 2</h2>
     
     <div class="control-group">
-        <label>Select Track</label>
+        <label>Select Part</label>
         <select id="trackSelector">
-            <option value="Jubilate.mp3">Te Deum (Full Mix)</option>
-            <option value="Te Deum - Soprano.mp3">Soprano Part</option>
-            <option value="mp3s/Te Deum - Alto.mp3">Alto Part</option>
-            <option value="mp3s/Te Deum - Tenor.mp3">Tenor Part</option>
-            <option value="Jubilate - Bass.mp3">Bass Part</option>
+            <option value="./mp3s/Te Deum.mp3">Te Deum (Full Mix)</option>
+            <option value="./mp3s/Te Deum - Soprano.mp3">Soprano Part</option>
+            <option value="./mp3s/Te Deum - Alto.mp3">Alto Part</option>
+            <option value="./mp3s/Te Deum - Tenor.mp3">Tenor Part</option>
+            <option value="./mp3s/Te Deum - Bass.mp3">Bass Part</option>
         </select>
     </div>
 
@@ -45,11 +44,11 @@
 
     <div class="control-group">
         <label>Volume</label>
-        <input type="range" id="volume" min="0" max="1" step="0.05" value="0.8">
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
     </div>
 
     <div class="control-group">
-        <label>Balance (Left - Right)</label>
+        <label>Balance (L ↔ R)</label>
         <input type="range" id="panner" min="-1" max="1" step="0.1" value="0">
     </div>
 
@@ -58,91 +57,88 @@
         <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1.0">
     </div>
 
-    <button id="playBtn" class="btn-main">Play / Pause</button>
+    <button id="playBtn" class="btn-main">Play</button>
+    <div id="errorMessage"></div>
 </div>
 
 <script>
     const audio = document.getElementById('audioSource');
     const trackSelector = document.getElementById('trackSelector');
     const playBtn = document.getElementById('playBtn');
-    const volumeControl = document.getElementById('volume');
-    const pannerControl = document.getElementById('panner');
-    const speedControl = document.getElementById('speed');
-    const progressBar = document.getElementById('progressBar');
+    const errorDisplay = document.getElementById('errorMessage');
+    
+    let audioCtx, pannerNode, sourceNode;
 
-    let audioCtx;
-    let pannerNode;
-    let gainNode;
-    let sourceNode;
-
-    // Initialize Web Audio Graph
     function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             sourceNode = audioCtx.createMediaElementSource(audio);
             pannerNode = audioCtx.createStereoPanner();
-            gainNode = audioCtx.createGain();
-
-            // Routing: Source -> Panner -> Gain (Volume) -> Destination
-            sourceNode.connect(pannerNode).connect(gainNode).connect(audioCtx.destination);
-            
-            // Set initial volume
-            gainNode.gain.value = volumeControl.value;
+            sourceNode.connect(pannerNode).connect(audioCtx.destination);
         }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
-    // Set initial file path
+    // Set initial source
     audio.src = trackSelector.value;
 
-    playBtn.addEventListener('click', () => {
-        initAudio(); 
-
+    playBtn.onclick = () => {
+        initAudio();
         if (audio.paused) {
-            audio.play();
-            playBtn.innerText = "Pause";
+            audio.play().then(() => {
+                playBtn.innerText = "Pause";
+                errorDisplay.style.display = 'none';
+            }).catch(err => {
+                errorDisplay.innerText = "Error: File not found in /mp3s folder.";
+                errorDisplay.style.display = 'block';
+            });
         } else {
             audio.pause();
             playBtn.innerText = "Play";
         }
-    });
+    };
 
+    // Reset logic when changing track
     trackSelector.onchange = () => {
+        audio.pause(); 
         audio.src = trackSelector.value;
-        if (!audio.paused) audio.play();
+        audio.load(); // Forces the browser to look for the new file
+        playBtn.innerText = "Play"; // Reset button text
+        errorDisplay.style.display = 'none';
+        
+        // Update duration display for the new file once loaded
+        audio.onmetadata = () => {
+            document.getElementById('duration').innerText = formatTime(audio.duration);
+        };
     };
 
-    volumeControl.oninput = () => {
-        if (gainNode) gainNode.gain.value = volumeControl.value;
+    // Volume & Speed logic
+    document.getElementById('volume').oninput = (e) => { audio.volume = e.target.value; };
+    document.getElementById('speed').oninput = (e) => {
+        audio.playbackRate = e.target.value;
+        document.getElementById('speedLabel').innerText = parseFloat(e.target.value).toFixed(1);
     };
 
-    pannerControl.oninput = () => {
-        if (pannerNode) pannerNode.pan.value = pannerControl.value;
+    // Panner logic
+    document.getElementById('panner').oninput = (e) => {
+        if (pannerNode) pannerNode.pan.value = e.target.value;
     };
 
-    speedControl.oninput = () => {
-        audio.playbackRate = speedControl.value;
-        document.getElementById('speedLabel').innerText = speedControl.value;
-    };
-
-    // Progress Bar Handling
+    // Progress Bar logic
     audio.ontimeupdate = () => {
-        progressBar.value = audio.currentTime;
+        document.getElementById('progressBar').value = Math.floor(audio.currentTime);
         document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
     };
-
     audio.onloadedmetadata = () => {
-        progressBar.max = audio.duration;
+        document.getElementById('progressBar').max = Math.floor(audio.duration);
         document.getElementById('duration').innerText = formatTime(audio.duration);
     };
-
-    progressBar.oninput = () => {
-        audio.currentTime = progressBar.value;
+    document.getElementById('progressBar').oninput = (e) => {
+        audio.currentTime = e.target.value;
     };
 
     function formatTime(s) {
+        if (isNaN(s)) return "0:00";
         const mins = Math.floor(s / 60);
         const secs = Math.floor(s % 60);
         return mins + ":" + (secs < 10 ? "0" + secs : secs);
@@ -150,7 +146,3 @@
 </script>
 </body>
 </html>
-
-
-
-
