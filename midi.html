@@ -21,7 +21,6 @@
         select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9rem; margin-bottom: 10px; }
         input[type="range"] { width: 100%; cursor: pointer; height: 4px; }
         .btn-main { width: 100%; padding: 10px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
-        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
         .download-section { background: white; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 8px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
@@ -59,7 +58,7 @@
                 <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
                 <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
             </div>
-            <button class="btn-main playBtn">Initialize & Play</button>
+            <button class="btn-main playBtn">Play</button>
         </div>
 
         <div class="player-card" id="player-jubilate">
@@ -85,7 +84,7 @@
                 <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
                 <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
             </div>
-            <button class="btn-main playBtn">Initialize & Play</button>
+            <button class="btn-main playBtn">Play</button>
         </div>
     </div>
 
@@ -100,8 +99,16 @@
 </div>
 
 <script>
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const ac = new AudioContext();
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    let instrument = null;
+
+    async function getInstrument() {
+        if (!instrument) {
+            // "church_organ" or "acoustic_grand_piano"
+            instrument = await Soundfont.instrument(ac, 'acoustic_grand_piano');
+        }
+        return instrument;
+    }
 
     function setupMidiPlayer(containerId) {
         const container = document.getElementById(containerId);
@@ -113,69 +120,77 @@
         const speedLabel = container.querySelector('.speedLabel');
         const pannerSlider = container.querySelector('.panner');
 
-        let instrument, player, pannerNode;
+        let player = null;
+        let pannerNode = ac.createStereoPanner();
+        pannerNode.connect(ac.destination);
+        
+        // Internal state to capture the MIDI's native BPM
+        let nativeBpm = 120; 
 
-        async function init() {
-            if (!instrument) {
-                playBtn.innerText = "Loading Sound...";
-                playBtn.disabled = true;
+        async function loadFile(url) {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            player.loadArrayBuffer(arrayBuffer);
+            // Capture native tempo from the file itself
+            nativeBpm = player.tempo; 
+            applyCurrentSpeed();
+            progressBar.max = player.totalTicks;
+        }
+
+        function applyCurrentSpeed() {
+            if (player) {
+                const multiplier = parseFloat(speedSlider.value);
+                player.setTempo(nativeBpm * multiplier);
+                speedLabel.innerText = multiplier.toFixed(1);
+            }
+        }
+
+        async function togglePlay() {
+            if (ac.state === 'suspended') await ac.resume();
+            
+            if (!player) {
+                playBtn.innerText = "Loading...";
+                const inst = await getInstrument();
                 
-                // Load an acoustic grand piano SoundFont
-                instrument = await Soundfont.instrument(ac, 'acoustic_grand_piano');
-                pannerNode = ac.createStereoPanner();
-                pannerNode.connect(ac.destination);
-
                 player = new MidiPlayer.Player(function(event) {
                     if (event.name === 'Note on' && event.velocity > 0) {
-                        instrument.play(event.noteName, ac.currentTime, { 
+                        inst.play(event.noteName, ac.currentTime, { 
                             gain: event.velocity / 128,
                             destination: pannerNode 
                         });
                     }
                 });
-
-                playBtn.disabled = false;
-                playBtn.innerText = "Play";
+                await loadFile(trackSelector.value);
             }
-        }
-
-        async function loadAndPlay() {
-            await init();
-            if (ac.state === 'suspended') await ac.resume();
 
             if (player.isPlaying()) {
                 player.pause();
                 playBtn.innerText = "Play";
             } else {
-                // Fetch the MIDI file as an array buffer
-                const response = await fetch(trackSelector.value);
-                const arrayBuffer = await response.arrayBuffer();
-                player.loadArrayBuffer(arrayBuffer);
-                
-                player.setTempo(player.tempo * speedSlider.value);
+                applyCurrentSpeed(); // Ensure it starts at the slider's speed
                 player.play();
                 playBtn.innerText = "Pause";
-                progressBar.max = player.totalTicks;
             }
         }
 
-        playBtn.onclick = loadAndPlay;
+        playBtn.onclick = togglePlay;
 
-        trackSelector.onchange = () => {
-            if(player) player.stop();
-            playBtn.innerText = "Play";
+        trackSelector.onchange = async () => {
+            if (player) {
+                player.stop();
+                playBtn.innerText = "Loading...";
+                await loadFile(trackSelector.value);
+                playBtn.innerText = "Play";
+            }
         };
 
+        speedSlider.oninput = () => applyCurrentSpeed();
+        
         pannerSlider.oninput = (e) => {
-            if (pannerNode) pannerNode.pan.value = e.target.value;
+            pannerNode.pan.value = e.target.value;
         };
 
-        speedSlider.oninput = (e) => {
-            const val = parseFloat(e.target.value);
-            speedLabel.innerText = val.toFixed(1);
-            if(player) player.setTempo(player.tempo * val);
-        };
-
+        // UI Update Loop
         setInterval(() => {
             if (player && player.isPlaying()) {
                 progressBar.value = player.tick;
