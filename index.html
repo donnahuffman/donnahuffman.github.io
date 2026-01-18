@@ -2,147 +2,231 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Te Deum Practice Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Howells Rehearsal Files</title>
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f2f5; margin: 0; }
-        .player-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 360px; }
-        h2 { margin: 0 0 1.5rem 0; color: #1a1a1a; text-align: center; font-size: 1.3rem; }
-        .control-group { margin-bottom: 1.2rem; }
-        label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.8rem; color: #666; text-transform: uppercase; }
-        select, input[type="range"] { width: 100%; cursor: pointer; }
-        .btn-main { width: 100%; padding: 14px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; }
-        .status-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; margin-top: 5px; }
-        #errorMessage { color: #d93025; font-size: 0.75rem; margin-top: 10px; text-align: center; display: none; padding: 5px; background: #fce8e6; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f8f9fa;
+            --text: #333;
+        }
+        body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); line-height: 1.4; }
+        .container { max-width: 750px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 1.5rem; color: var(--primary); margin: 0; }
+
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .player-card { background: white; padding: 1.2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #dee2e6; }
+        h2 { margin: 0 0 12px 0; font-size: 1.1rem; color: var(--primary);}
+        
+        .control-group { margin-bottom: 0.8rem; }
+        .label-row { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #666; margin-bottom: 2px; text-transform: uppercase; }
+        .extremes { display: flex; justify-content: space-between; font-size: 0.7rem; color: #999; margin-top: -2px; }
+        
+        select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9rem; margin-bottom: 10px; }
+        input[type="range"] { width: 100%; cursor: pointer; height: 4px; }
+        
+        .btn-main { width: 100%; padding: 10px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
+        .btn-main:hover { background: var(--accent); }
+
+        /* Download Table */
+        .download-section { background: white; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 8px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+        tr:last-child td { border-bottom: none; }
+        .piece-name { font-weight: bold; width: 100px; color: var(--primary); }
+        .links-cell { display: flex; flex-wrap: wrap; gap: 12px; }
+        a { color: var(--accent); text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
+
+        footer { text-align: center; font-size: 0.8rem; color: #888; padding: 25px 0; }
     </style>
 </head>
 <body>
 
-<div class="player-card">
-    <h2>Te Deum</h2>
-    
-    <div class="control-group">
-        <label>Select Your Part</label>
-        <select id="trackSelector">
-            <option value="Te Deum.mp3">Te Deum (Balanced)</option>
-            <option value="Te Deum - Soprano.mp3">Soprano Part</option>
-            <option value="Te Deum - Alto.mp3">Alto Part</option>
-            <option value="Te Deum - Tenor.mp3">Tenor Part</option>
-            <option value="Te Deum - Bass.mp3">Bass Part</option>
-        </select>
-    </div>
+<div class="container">
+    <header>
+        <h1>H Howells</h1>
+<h1>	Te Deum</h1><h3>Rehearsal Files</h3>
 
-    <audio id="audioSource" crossorigin="anonymous"></audio>
+    </header>
 
-    <div class="control-group">
-        <label>Position</label>
-        <input type="range" id="progressBar" value="0" min="0">
-        <div class="status-text">
-            <span id="currentTime">0:00</span>
-            <span id="duration">0:00</span>
+    <div class="players-grid">
+        <div class="player-card" id="player-tedeum">
+            <h2>Te Deum</h2>
+            <select class="trackSelector">
+                <option value="Te Deum.mp3">Full Mix (Balanced)</option>
+                <option value="Te Deum - Soprano.mp3">Soprano</option>
+                <option value="Te Deum - Alto.mp3">Alto</option>
+                <option value="Te Deum - Tenor.mp3">Tenor</option>
+                <option value="Te Deum - Bass.mp3">Bass</option>
+            </select>
+            
+            <audio class="audioSource" crossorigin="anonymous"></audio>
+
+            <div class="control-group">
+                <div class="label-row"><span>Position</span> <span class="timeDisplay"><span class="currentTime">0:00</span> / <span class="duration">0:00</span></span></div>
+                <input type="range" class="progressBar" value="0" min="0">
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Balance</span></div>
+                <input type="range" class="panner" min="-1" max="1" step="0.1" value="0">
+                <div class="extremes"><span>(other parts louder)</span><span>(emphasized part louder)</span></div>
+                </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Speed: <span class="speedLabel">1.0</span>x</span></div>
+                <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
+                <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
+            </div>
+
+            <button class="btn-main playBtn">Play</button>
+        </div>
+
+        <div class="player-card" id="player-jubilate">
+            <h2>Jubilate</h2>
+            <select class="trackSelector">
+                <option value="Jubilate.mp3">Full Mix (Balanced)</option>
+                <option value="Jubilate - Soprano.mp3">Soprano</option>
+                <option value="Jubilate - Alto.mp3">Alto</option>
+                <option value="Jubilate - Tenor.mp3">Tenor</option>
+                <option value="Jubilate - Bass.mp3">Bass</option>
+            </select>
+            
+            <audio class="audioSource" crossorigin="anonymous"></audio>
+
+            <div class="control-group">
+                <div class="label-row"><span>Position</span> <span class="timeDisplay"><span class="currentTime">0:00</span> / <span class="duration">0:00</span></span></div>
+                <input type="range" class="progressBar" value="0" min="0">
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Balance</span></div>
+                <input type="range" class="panner" min="-1" max="1" step="0.1" value="0">
+                <div class="extremes"><span>(other parts louder)</span><span>(emphasized part louder)</span></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Speed: <span class="speedLabel">1.0</span>x</span></div>
+                <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
+                <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
+            </div>
+
+            <button class="btn-main playBtn">Play</button>
         </div>
     </div>
 
-    <div class="control-group">
-        <label>Volume</label>
-        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
+    <div class="download-section">
+	<h2>Direct MP3 Download</h2>
+        <table>
+            <tr>
+                <td class="piece-name">Te Deum</td>
+                <td class="links-cell">
+                    <a href="Te Deum.mp3" download>Full Mix</a>
+                    <a href="Te Deum - Soprano.mp3" download>Soprano</a>
+                    <a href="Te Deum - Alto.mp3" download>Alto</a>
+                    <a href="Te Deum - Tenor.mp3" download>Tenor</a>
+                    <a href="Te Deum - Bass.mp3" download>Bass</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="piece-name">Jubilate</td>
+                <td class="links-cell">
+                    <a href="Jubilate.mp3" download>Full Mix</a>
+                    <a href="Jubilate - Soprano.mp3" download>Soprano</a>
+                    <a href="Jubilate - Alto.mp3" download>Alto</a>
+                    <a href="Jubilate - Tenor.mp3" download>Tenor</a>
+                    <a href="Jubilate - Bass.mp3" download>Bass</a>
+                </td>
+            </tr>
+        </table>
     </div>
 
-    <div class="control-group">
-        <label>Balance (L ↔ R)</label>
-        <input type="range" id="panner" min="-1" max="1" step="0.1" value="0">
-    </div>
-
-    <div class="control-group">
-        <label>Speed: <span id="speedLabel">1.0</span>x</label>
-        <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1.0">
-    </div>
-
-    <button id="playBtn" class="btn-main">Play</button>
-    <div id="errorMessage"></div>
+    <footer>
+        If you have any problems with these files, let me know: 
+        <a href="mailto:donnahuffman@duck.com">donnahuffman@duck.com</a>
+    </footer>
 </div>
 
 <script>
-    const audio = document.getElementById('audioSource');
-    const trackSelector = document.getElementById('trackSelector');
-    const playBtn = document.getElementById('playBtn');
-    const errorDisplay = document.getElementById('errorMessage');
-    
-    let audioCtx, pannerNode, sourceNode;
+    function setupPlayer(containerId) {
+        const container = document.getElementById(containerId);
+        const audio = container.querySelector('.audioSource');
+        const trackSelector = container.querySelector('.trackSelector');
+        const playBtn = container.querySelector('.playBtn');
+        const progressBar = container.querySelector('.progressBar');
+        const pannerSlider = container.querySelector('.panner');
+        const speedSlider = container.querySelector('.speed');
+        const speedLabel = container.querySelector('.speedLabel');
+        const currentTimeText = container.querySelector('.currentTime');
+        const durationText = container.querySelector('.duration');
 
-    function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            sourceNode = audioCtx.createMediaElementSource(audio);
-            pannerNode = audioCtx.createStereoPanner();
-            sourceNode.connect(pannerNode).connect(audioCtx.destination);
+        let audioCtx, pannerNode, sourceNode;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                sourceNode = audioCtx.createMediaElementSource(audio);
+                pannerNode = audioCtx.createStereoPanner();
+                sourceNode.connect(pannerNode).connect(audioCtx.destination);
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
 
-    // Set initial source
-    audio.src = trackSelector.value;
-
-    playBtn.onclick = () => {
-        initAudio();
-        if (audio.paused) {
-            audio.play().then(() => {
-                playBtn.innerText = "Pause";
-                errorDisplay.style.display = 'none';
-            }).catch(err => {
-                errorDisplay.innerText = "Error: File not found in /mp3s folder.";
-                errorDisplay.style.display = 'block';
-            });
-        } else {
-            audio.pause();
-            playBtn.innerText = "Play";
-        }
-    };
-
-    // Reset logic when changing track
-    trackSelector.onchange = () => {
-        audio.pause(); 
         audio.src = trackSelector.value;
-        audio.load(); // Forces the browser to look for the new file
-        playBtn.innerText = "Play"; // Reset button text
-        errorDisplay.style.display = 'none';
-        
-        // Update duration display for the new file once loaded
-        audio.onmetadata = () => {
-            document.getElementById('duration').innerText = formatTime(audio.duration);
+
+        playBtn.onclick = () => {
+            initAudio();
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "Pause";
+            } else {
+                audio.pause();
+                playBtn.innerText = "Play";
+            }
         };
-    };
 
-    // Volume & Speed logic
-    document.getElementById('volume').oninput = (e) => { audio.volume = e.target.value; };
-    document.getElementById('speed').oninput = (e) => {
-        audio.playbackRate = e.target.value;
-        document.getElementById('speedLabel').innerText = parseFloat(e.target.value).toFixed(1);
-    };
+        trackSelector.onchange = () => {
+            audio.pause();
+            audio.src = trackSelector.value;
+            audio.load();
+            playBtn.innerText = "Play";
+        };
 
-    // Panner logic
-    document.getElementById('panner').oninput = (e) => {
-        if (pannerNode) pannerNode.pan.value = e.target.value;
-    };
+        speedSlider.oninput = (e) => {
+            audio.playbackRate = e.target.value;
+            speedLabel.innerText = parseFloat(e.target.value).toFixed(1);
+        };
 
-    // Progress Bar logic
-    audio.ontimeupdate = () => {
-        document.getElementById('progressBar').value = Math.floor(audio.currentTime);
-        document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
-    };
-    audio.onloadedmetadata = () => {
-        document.getElementById('progressBar').max = Math.floor(audio.duration);
-        document.getElementById('duration').innerText = formatTime(audio.duration);
-    };
-    document.getElementById('progressBar').oninput = (e) => {
-        audio.currentTime = e.target.value;
-    };
+        pannerSlider.oninput = (e) => {
+            if (pannerNode) pannerNode.pan.value = e.target.value;
+        };
 
-    function formatTime(s) {
-        if (isNaN(s)) return "0:00";
-        const mins = Math.floor(s / 60);
-        const secs = Math.floor(s % 60);
-        return mins + ":" + (secs < 10 ? "0" + secs : secs);
+        audio.ontimeupdate = () => {
+            progressBar.value = Math.floor(audio.currentTime);
+            currentTimeText.innerText = formatTime(audio.currentTime);
+        };
+
+        audio.onloadedmetadata = () => {
+            progressBar.max = Math.floor(audio.duration);
+            durationText.innerText = formatTime(audio.duration);
+        };
+
+        progressBar.oninput = (e) => audio.currentTime = e.target.value;
+
+        function formatTime(s) {
+            if (isNaN(s)) return "0:00";
+            const mins = Math.floor(s / 60);
+            const secs = Math.floor(s % 60);
+            return mins + ":" + (secs < 10 ? "0" + secs : secs);
+        }
     }
+
+    setupPlayer('player-tedeum');
+    setupPlayer('player-jubilate');
 </script>
+
 </body>
 </html>
