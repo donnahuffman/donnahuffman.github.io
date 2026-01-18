@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Howells MIDI Rehearsal Files</title>
+    <script src="https://unpkg.com/tone"></script>
+    <script src="https://unpkg.com/@tonejs/midi"></script>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f8f9fa; --text: #333; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); }
+        .container { max-width: 750px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 1.5rem; color: var(--primary); }
+
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .player-card { background: white; padding: 1.2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #dee2e6; }
+        h2 { margin: 0 0 12px 0; font-size: 1.1rem; color: var(--primary); border-left: 4px solid var(--accent); padding-left: 10px; }
+        
+        .control-group { margin-bottom: 0.8rem; }
+        .label-row { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: #666; margin-bottom: 2px; text-transform: uppercase; }
+        .extremes { display: flex; justify-content: space-between; font-size: 0.7rem; color: #999; margin-top: -2px; }
+        
+        select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9rem; margin-bottom: 10px; }
+        input[type="range"] { width: 100%; cursor: pointer; height: 4px; }
+        
+        .btn-main { width: 100%; padding: 10px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+        .download-section { background: white; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 8px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+        .piece-name { font-weight: bold; width: 100px; color: var(--primary); }
+        a { color: var(--accent); text-decoration: none; font-weight: 500; margin-right: 12px; }
+
+        footer { text-align: center; font-size: 0.8rem; color: #888; padding: 25px 0; }
+        .loading-hint { font-size: 0.7rem; color: var(--accent); font-style: italic; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header><h1>Howells MIDI Rehearsal Files</h1></header>
+
+    <div class="players-grid">
+        <div class="player-card" id="player-tedeum">
+            <h2>Te Deum</h2>
+            <select class="trackSelector">
+                <option value="Te Deum.mid">Full Mix</option>
+                <option value="Te Deum - Soprano.mid">Soprano</option>
+                <option value="Te Deum - Alto.mid">Alto</option>
+                <option value="Te Deum - Tenor.mid">Tenor</option>
+                <option value="Te Deum - Bass.mid">Bass</option>
+            </select>
+            
+            <div class="control-group">
+                <div class="label-row"><span>Position</span> <span class="timeDisplay">0:00</span></div>
+                <input type="range" class="progressBar" value="0" min="0" max="100">
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Balance</span></div>
+                <input type="range" class="panner" min="-1" max="1" step="0.1" value="0">
+                <div class="extremes"><span>Left</span><span>Right</span></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Speed: <span class="speedLabel">1.0</span>x</span></div>
+                <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
+                <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
+            </div>
+
+            <button class="btn-main playBtn">Play MIDI</button>
+            <div class="loading-hint">Loading MIDI...</div>
+        </div>
+
+        <div class="player-card" id="player-jubilate">
+            <h2>Jubilate</h2>
+            <select class="trackSelector">
+                <option value="Jubilate.mid">Full Mix</option>
+                <option value="Jubilate - Soprano.mid">Soprano</option>
+                <option value="Jubilate - Alto.mid">Alto</option>
+                <option value="Jubilate - Tenor.mid">Tenor</option>
+                <option value="Jubilate - Bass.mid">Bass</option>
+            </select>
+            
+            <div class="control-group">
+                <div class="label-row"><span>Position</span> <span class="timeDisplay">0:00</span></div>
+                <input type="range" class="progressBar" value="0" min="0" max="100">
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Balance</span></div>
+                <input type="range" class="panner" min="-1" max="1" step="0.1" value="0">
+                <div class="extremes"><span>Left</span><span>Right</span></div>
+            </div>
+
+            <div class="control-group">
+                <div class="label-row"><span>Speed: <span class="speedLabel">1.0</span>x</span></div>
+                <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
+                <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
+            </div>
+
+            <button class="btn-main playBtn">Play MIDI</button>
+            <div class="loading-hint">Loading MIDI...</div>
+        </div>
+    </div>
+
+    <div class="download-section">
+        <table>
+            <tr>
+                <td class="piece-name">Te Deum</td>
+                <td>
+                    <a href="Te Deum.mid" download>Full</a>
+                    <a href="Te Deum - Soprano.mid" download>Soprano</a>
+                    <a href="Te Deum - Alto.mid" download>Alto</a>
+                    <a href="Te Deum - Tenor.mid" download>Tenor</a>
+                    <a href="Te Deum - Bass.mid" download>Bass</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="piece-name">Jubilate</td>
+                <td>
+                    <a href="Jubilate.mid" download>Full</a>
+                    <a href="Jubilate - Soprano.mid" download>Soprano</a>
+                    <a href="Jubilate - Alto.mid" download>Alto</a>
+                    <a href="Jubilate - Tenor.mid" download>Tenor</a>
+                    <a href="Jubilate - Bass.mid" download>Bass</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <footer>If you have any problems, let me know: <a href="mailto:donnahuffman@duck.com">donnahuffman@duck.com</a></footer>
+</div>
+
+<script>
+    function setupMidiPlayer(containerId) {
+        const container = document.getElementById(containerId);
+        const playBtn = container.querySelector('.playBtn');
+        const trackSelector = container.querySelector('.trackSelector');
+        const progressBar = container.querySelector('.progressBar');
+        const timeDisplay = container.querySelector('.timeDisplay');
+        const pannerSlider = container.querySelector('.panner');
+        const speedSlider = container.querySelector('.speed');
+        const speedLabel = container.querySelector('.speedLabel');
+        const loadingHint = container.querySelector('.loading-hint');
+
+        let currentMidi = null;
+        let isPlaying = false;
+        let panner = new Tone.Panner(0).toDestination();
+        let synthPart = null;
+        const synths = [];
+
+        async function loadMidi(url) {
+            loadingHint.style.display = "block";
+            const midi = await Midi.fromUrl(url);
+            currentMidi = midi;
+            loadingHint.style.display = "none";
+            progressBar.max = midi.duration;
+            return midi;
+        }
+
+        function stopMidi() {
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+            synths.forEach(s => s.dispose());
+            synths.length = 0;
+            isPlaying = false;
+            playBtn.innerText = "Play MIDI";
+        }
+
+        async function playMidi() {
+            await Tone.start();
+            if (!currentMidi) await loadMidi(trackSelector.value);
+
+            const now = Tone.now();
+            currentMidi.tracks.forEach(track => {
+                const synth = new Tone.PolySynth(Tone.Synth).connect(panner);
+                synths.push(synth);
+                
+                new Tone.Part((time, note) => {
+                    synth.triggerAttackRelease(note.name, note.duration, time, note.velocity);
+                }, track.notes).start(0);
+            });
+
+            Tone.Transport.bpm.value = 120 * speedSlider.value;
+            Tone.Transport.start();
+            isPlaying = true;
+            playBtn.innerText = "Pause";
+        }
+
+        playBtn.onclick = () => {
+            if (isPlaying) {
+                Tone.Transport.pause();
+                isPlaying = false;
+                playBtn.innerText = "Resume";
+            } else {
+                if (Tone.Transport.state === 'paused') {
+                    Tone.Transport.start();
+                    isPlaying = true;
+                    playBtn.innerText = "Pause";
+                } else {
+                    playMidi();
+                }
+            }
+        };
+
+        trackSelector.onchange = () => {
+            stopMidi();
+            currentMidi = null;
+            loadMidi(trackSelector.value);
+        };
+
+        pannerSlider.oninput = (e) => panner.pan.value = e.target.value;
+        
+        speedSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            speedLabel.innerText = val.toFixed(1);
+            Tone.Transport.bpm.value = 120 * val; 
+        };
+
+        // Update loop
+        setInterval(() => {
+            if (isPlaying) {
+                const seconds = Tone.Transport.seconds;
+                progressBar.value = seconds;
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                timeDisplay.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+        }, 100);
+
+        progressBar.oninput = (e) => {
+            Tone.Transport.seconds = e.target.value;
+        };
+    }
+
+    setupMidiPlayer('player-tedeum');
+    setupMidiPlayer('player-jubilate');
+</script>
+</body>
+</html>
