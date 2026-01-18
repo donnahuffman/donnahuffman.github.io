@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Howells MIDI Rehearsal Files</title>
-    <script src="https://cdn.jsdelivr.net/combine/npm/midi-player-js@2.0.16,npm/soundfont-player@0.12.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/midi-player-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --bg: #f8f9fa; --text: #333; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); }
         .container { max-width: 750px; margin: 0 auto; }
         header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 1.5rem; color: var(--primary); }
         .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .player-card { background: white; padding: 1.2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #dee2e6; }
         h2 { margin: 0 0 12px 0; font-size: 1.1rem; color: var(--primary); border-left: 4px solid var(--accent); padding-left: 10px; }
@@ -19,6 +21,7 @@
         select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9rem; margin-bottom: 10px; }
         input[type="range"] { width: 100%; cursor: pointer; height: 4px; }
         .btn-main { width: 100%; padding: 10px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
         .download-section { background: white; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 8px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
@@ -30,7 +33,7 @@
 <body>
 
 <div class="container">
-    <header><h1>Howells Te Deum Rehearsal Files</h1></header>
+    <header><h1>Howells MIDI Rehearsal Files</h1></header>
 
     <div class="players-grid">
         <div class="player-card" id="player-tedeum">
@@ -88,8 +91,8 @@
 
     <div class="download-section">
         <table>
-            <tr><td class="piece-name">Te Deum</td><td><a href="Te Deum.mid" download>Soprano</a> <a href="Te Deum - Alto.mid" download>Alto</a> <a href="Te Deum - Tenor.mid" download>Tenor</a> <a href="Te Deum - Bass.mid" download>Bass</a></td></tr>
-            <tr><td class="piece-name">Jubilate</td><td><a href="Jubilate.mid" download>Soprano</a> <a href="Jubilate - Alto.mid" download>Alto</a> <a href="Jubilate - Tenor.mid" download>Tenor</a> <a href="Jubilate - Bass.mid" download>Bass</a></td></tr>
+            <tr><td class="piece-name">Te Deum</td><td><a href="Te Deum.mid" download>Full</a> <a href="Te Deum - Soprano.mid" download>Soprano</a> <a href="Te Deum - Alto.mid" download>Alto</a> <a href="Te Deum - Tenor.mid" download>Tenor</a> <a href="Te Deum - Bass.mid" download>Bass</a></td></tr>
+            <tr><td class="piece-name">Jubilate</td><td><a href="Jubilate.mid" download>Full</a> <a href="Jubilate - Soprano.mid" download>Soprano</a> <a href="Jubilate - Alto.mid" download>Alto</a> <a href="Jubilate - Tenor.mid" download>Tenor</a> <a href="Jubilate - Bass.mid" download>Bass</a></td></tr>
         </table>
     </div>
 
@@ -97,16 +100,8 @@
 </div>
 
 <script>
-    // Global Context
-    const ac = new (window.AudioContext || window.webkitAudioContext)();
-    let commonInstrument = null;
-
-    async function initSharedInstrument() {
-        if (!commonInstrument) {
-            commonInstrument = await Soundfont.instrument(ac, 'acoustic_grand_piano');
-        }
-        return commonInstrument;
-    }
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ac = new AudioContext();
 
     function setupMidiPlayer(containerId) {
         const container = document.getElementById(containerId);
@@ -115,101 +110,89 @@
         const progressBar = container.querySelector('.progressBar');
         const timeDisplay = container.querySelector('.timeDisplay');
         const speedSlider = container.querySelector('.speed');
+        const speedLabel = container.querySelector('.speedLabel');
         const pannerSlider = container.querySelector('.panner');
 
-        let player = null;
-        let pannerNode = ac.createStereoPanner();
-        pannerNode.connect(ac.destination);
-        let nativeTempo = 120;
+        let instrument, player, pannerNode;
 
-        async function safeLoad(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("File not found");
-                const ab = await response.arrayBuffer();
-                player.loadArrayBuffer(ab);
-                nativeTempo = player.tempo;
-                progressBar.max = player.totalTicks;
-                applySpeed();
-                return true;
-            } catch (e) {
-                console.error(e);
-                playBtn.innerText = "Error Loading File";
-                return false;
-            }
-        }
-
-        function applySpeed() {
-            if (player) {
-                const mult = parseFloat(speedSlider.value);
-                player.setTempo(nativeTempo * mult);
-                container.querySelector('.speedLabel').innerText = mult.toFixed(1);
-            }
-        }
-
-        playBtn.onclick = async () => {
-            if (ac.state === 'suspended') await ac.resume();
-            
-            if (!player) {
+        async function init() {
+            if (!instrument) {
                 playBtn.innerText = "Loading Sound...";
-                const inst = await initSharedInstrument();
+                playBtn.disabled = true;
                 
-                player = new MidiPlayer.Player((event) => {
+                // Load an acoustic grand piano SoundFont
+                instrument = await Soundfont.instrument(ac, 'acoustic_grand_piano');
+                pannerNode = ac.createStereoPanner();
+                pannerNode.connect(ac.destination);
+
+                player = new MidiPlayer.Player(function(event) {
                     if (event.name === 'Note on' && event.velocity > 0) {
-                        inst.play(event.noteName, ac.currentTime, { 
+                        instrument.play(event.noteName, ac.currentTime, { 
                             gain: event.velocity / 128,
                             destination: pannerNode 
                         });
                     }
                 });
-                
-                const loaded = await safeLoad(trackSelector.value);
-                if (!loaded) return;
+
+                playBtn.disabled = false;
+                playBtn.innerText = "Play";
             }
+        }
+
+        async function loadAndPlay() {
+            await init();
+            if (ac.state === 'suspended') await ac.resume();
 
             if (player.isPlaying()) {
                 player.pause();
                 playBtn.innerText = "Play";
             } else {
-                applySpeed();
+                // Fetch the MIDI file as an array buffer
+                const response = await fetch(trackSelector.value);
+                const arrayBuffer = await response.arrayBuffer();
+                player.loadArrayBuffer(arrayBuffer);
+                
+                player.setTempo(player.tempo * speedSlider.value);
                 player.play();
                 playBtn.innerText = "Pause";
+                progressBar.max = player.totalTicks;
             }
-        };
+        }
+
+        playBtn.onclick = loadAndPlay;
 
         trackSelector.onchange = () => {
-            if (player) {
-                player.stop();
-                playBtn.innerText = "Load New Track";
-                safeLoad(trackSelector.value).then(() => {
-                    playBtn.innerText = "Play";
-                });
-            }
+            if(player) player.stop();
+            playBtn.innerText = "Play";
         };
 
-        speedSlider.oninput = applySpeed;
-        pannerSlider.oninput = (e) => pannerNode.pan.value = e.target.value;
+        pannerSlider.oninput = (e) => {
+            if (pannerNode) pannerNode.pan.value = e.target.value;
+        };
+
+        speedSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            speedLabel.innerText = val.toFixed(1);
+            if(player) player.setTempo(player.tempo * val);
+        };
 
         setInterval(() => {
             if (player && player.isPlaying()) {
                 progressBar.value = player.tick;
-                const totalSec = Math.max(0, player.getSongTime() - player.getTimeRemaining());
-                const mins = Math.floor(totalSec / 60);
-                const secs = Math.floor(totalSec % 60);
+                const totalSeconds = (player.getSongTime() - player.getTimeRemaining()) || 0;
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = Math.floor(totalSeconds % 60);
                 timeDisplay.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
             }
-        }, 150);
+        }, 100);
 
         progressBar.oninput = (e) => {
-            if (player) player.skipToTick(e.target.value);
+            if(player) player.skipToTick(e.target.value);
         };
     }
 
-    // Delayed init to ensure libraries are parsed
-    window.onload = () => {
-        setupMidiPlayer('player-tedeum');
-        setupMidiPlayer('player-jubilate');
-    };
+    setupMidiPlayer('player-tedeum');
+    setupMidiPlayer('player-jubilate');
 </script>
 </body>
 </html>
