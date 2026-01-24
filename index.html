@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Howells Rehearsal Files</title>
+    <title>Howells Te Deum Rehearsal Files</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -30,8 +30,8 @@
         .btn-main { width: 100%; padding: 10px; cursor: pointer; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 0.9rem; transition: background 0.2s; }
         .btn-main:hover { background: var(--accent); }
 
-        /* Download Table */
-        .download-section { background: white; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px; }
+        /* Download Section */
+        .download-section { background: white; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 8px 5px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
         tr:last-child td { border-bottom: none; }
@@ -47,9 +47,8 @@
 
 <div class="container">
     <header>
-        <h1>H Howells</h1>
-<h1>	Te Deum</h1><h3>Rehearsal Files</h3>
-
+        <h1>H Howells - Te Deum</h1>
+        <h3>Rehearsal Files</h3>
     </header>
 
     <div class="players-grid">
@@ -74,38 +73,6 @@
                 <div class="label-row"><span>Balance</span></div>
                 <input type="range" class="panner" min="-1" max="1" step="0.1" value="0">
                 <div class="extremes"><span>(other parts louder)</span><span>(emphasized part louder)</span></div>
-                </div>
-
-            <div class="control-group">
-                <div class="label-row"><span>Speed: <span class="speedLabel">1.0</span>x</span></div>
-                <input type="range" class="speed" min="0.5" max="1.5" step="0.1" value="1.0">
-                <div class="extremes"><span>0.5x</span><span>1.5x</span></div>
-            </div>
-
-            <button class="btn-main playBtn">Play</button>
-        </div>
-
-        <div class="player-card" id="player-jubilate">
-            <h2>Jubilate</h2>
-            <select class="trackSelector">
-                <option value="Jubilate.mp3">Full Mix (Balanced)</option>
-                <option value="Jubilate - Soprano.mp3">Soprano</option>
-                <option value="Jubilate - Alto.mp3">Alto</option>
-                <option value="Jubilate - Tenor.mp3">Tenor</option>
-                <option value="Jubilate - Bass.mp3">Bass</option>
-            </select>
-            
-            <audio class="audioSource" crossorigin="anonymous"></audio>
-
-            <div class="control-group">
-                <div class="label-row"><span>Position</span> <span class="timeDisplay"><span class="currentTime">0:00</span> / <span class="duration">0:00</span></span></div>
-                <input type="range" class="progressBar" value="0" min="0">
-            </div>
-
-            <div class="control-group">
-                <div class="label-row"><span>Balance</span></div>
-                <input type="range" class="panner" min="-1" max="1" step="0.1" value="0">
-                <div class="extremes"><span>(other parts louder)</span><span>(emphasized part louder)</span></div>
             </div>
 
             <div class="control-group">
@@ -116,13 +83,13 @@
 
             <button class="btn-main playBtn">Play</button>
         </div>
-    </div>
+        </div>
 
     <div class="download-section">
-	<h2>Direct MP3 Download</h2>
+        <h2>Direct Downloads</h2>
         <table>
             <tr>
-                <td class="piece-name">Te Deum</td>
+                <td class="piece-name">MP3s</td>
                 <td class="links-cell">
                     <a href="Te Deum.mp3" download>Full Mix</a>
                     <a href="Te Deum - Soprano.mp3" download>Soprano</a>
@@ -131,18 +98,19 @@
                     <a href="Te Deum - Bass.mp3" download>Bass</a>
                 </td>
             </tr>
-            <tr>
-                <td class="piece-name">Jubilate</td>
+			            <tr>
+                <td class="piece-name">MIDIs</td>
                 <td class="links-cell">
-                    <a href="Jubilate.mp3" download>Full Mix</a>
-                    <a href="Jubilate - Soprano.mp3" download>Soprano</a>
-                    <a href="Jubilate - Alto.mp3" download>Alto</a>
-                    <a href="Jubilate - Tenor.mp3" download>Tenor</a>
-                    <a href="Jubilate - Bass.mp3" download>Bass</a>
+                    <a href="Te Deum.mid" download>Full Mix</a>
+                    <a href="Te Deum - Soprano.mid" download>Soprano</a>
+                    <a href="Te Deum - Alto.mid" download>Alto</a>
+                    <a href="Te Deum - Tenor.mid" download>Tenor</a>
+                    <a href="Te Deum - Bass.mid" download>Bass</a>
                 </td>
             </tr>
-        </table>
+            </table>
     </div>
+
 
     <footer>
         If you have any problems with these files, let me know: 
@@ -153,6 +121,8 @@
 <script>
     function setupPlayer(containerId) {
         const container = document.getElementById(containerId);
+        if(!container) return; // Guard clause in case element is removed
+
         const audio = container.querySelector('.audioSource');
         const trackSelector = container.querySelector('.trackSelector');
         const playBtn = container.querySelector('.playBtn');
@@ -200,33 +170,4 @@
             speedLabel.innerText = parseFloat(e.target.value).toFixed(1);
         };
 
-        pannerSlider.oninput = (e) => {
-            if (pannerNode) pannerNode.pan.value = e.target.value;
-        };
-
-        audio.ontimeupdate = () => {
-            progressBar.value = Math.floor(audio.currentTime);
-            currentTimeText.innerText = formatTime(audio.currentTime);
-        };
-
-        audio.onloadedmetadata = () => {
-            progressBar.max = Math.floor(audio.duration);
-            durationText.innerText = formatTime(audio.duration);
-        };
-
-        progressBar.oninput = (e) => audio.currentTime = e.target.value;
-
-        function formatTime(s) {
-            if (isNaN(s)) return "0:00";
-            const mins = Math.floor(s / 60);
-            const secs = Math.floor(s % 60);
-            return mins + ":" + (secs < 10 ? "0" + secs : secs);
-        }
-    }
-
-    setupPlayer('player-tedeum');
-    setupPlayer('player-jubilate');
-</script>
-
-</body>
-</html>
+        pannerSlider.oninput =
