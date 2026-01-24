@@ -53,14 +53,14 @@
 
     <div class="players-grid">
         <div class="player-card" id="player-tedeum">
-            <h2>Te Deum</h2>
-   <select class="trackSelector">
-    <option value="Te%20Deum.mp3">Full Mix (Balanced)</option>
-    <option value="Te%20Deum%20-%20Soprano.mp3">Soprano</option>
-    <option value="Te%20Deum%20-%20Alto.mp3">Alto</option>
-    <option value="Te%20Deum%20-%20Tenor.mp3">Tenor</option>
-    <option value="Te%20Deum%20-%20Bass.mp3">Bass</option>
-</select>
+            <h2>Te Deum Player</h2>
+            <select class="trackSelector">
+                <option value="Te%20Deum.mp3">Full Mix (Balanced)</option>
+                <option value="Te%20Deum%20-%20Soprano.mp3">Soprano</option>
+                <option value="Te%20Deum%20-%20Alto.mp3">Alto</option>
+                <option value="Te%20Deum%20-%20Tenor.mp3">Tenor</option>
+                <option value="Te%20Deum%20-%20Bass.mp3">Bass</option>
+            </select>
             
             <audio class="audioSource" crossorigin="anonymous"></audio>
 
@@ -83,7 +83,7 @@
 
             <button class="btn-main playBtn">Play</button>
         </div>
-        </div>
+    </div>
 
     <div class="download-section">
         <h2>Direct Downloads</h2>
@@ -91,26 +91,25 @@
             <tr>
                 <td class="piece-name">MP3s</td>
                 <td class="links-cell">
-                    <a href="Te Deum.mp3" download>Full Mix</a>
-                    <a href="Te Deum - Soprano.mp3" download>Soprano</a>
-                    <a href="Te Deum - Alto.mp3" download>Alto</a>
-                    <a href="Te Deum - Tenor.mp3" download>Tenor</a>
-                    <a href="Te Deum - Bass.mp3" download>Bass</a>
+                    <a href="Te%20Deum.mp3" download>Full Mix</a>
+                    <a href="Te%20Deum%20-%20Soprano.mp3" download>Soprano</a>
+                    <a href="Te%20Deum%20-%20Alto.mp3" download>Alto</a>
+                    <a href="Te%20Deum%20-%20Tenor.mp3" download>Tenor</a>
+                    <a href="Te%20Deum%20-%20Bass.mp3" download>Bass</a>
                 </td>
             </tr>
-			            <tr>
+            <tr>
                 <td class="piece-name">MIDIs</td>
                 <td class="links-cell">
-                    <a href="Te Deum.mid" download>Full Mix</a>
-                    <a href="Te Deum - Soprano.mid" download>Soprano</a>
-                    <a href="Te Deum - Alto.mid" download>Alto</a>
-                    <a href="Te Deum - Tenor.mid" download>Tenor</a>
-                    <a href="Te Deum - Bass.mid" download>Bass</a>
+                    <a href="Te%20Deum.mid" download>Full Mix</a>
+                    <a href="Te%20Deum%20-%20Soprano.mid" download>Soprano</a>
+                    <a href="Te%20Deum%20-%20Alto.mid" download>Alto</a>
+                    <a href="Te%20Deum%20-%20Tenor.mid" download>Tenor</a>
+                    <a href="Te%20Deum%20-%20Bass.mid" download>Bass</a>
                 </td>
             </tr>
-            </table>
+        </table>
     </div>
-
 
     <footer>
         If you have any problems with these files, let me know: 
@@ -121,7 +120,7 @@
 <script>
     function setupPlayer(containerId) {
         const container = document.getElementById(containerId);
-        if(!container) return; // Guard clause in case element is removed
+        if(!container) return;
 
         const audio = container.querySelector('.audioSource');
         const trackSelector = container.querySelector('.trackSelector');
@@ -145,12 +144,13 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
+        // Set initial source
         audio.src = trackSelector.value;
 
         playBtn.onclick = () => {
             initAudio();
             if (audio.paused) {
-                audio.play();
+                audio.play().catch(e => console.error("Playback failed:", e));
                 playBtn.innerText = "Pause";
             } else {
                 audio.pause();
@@ -163,6 +163,8 @@
             audio.src = trackSelector.value;
             audio.load();
             playBtn.innerText = "Play";
+            progressBar.value = 0;
+            currentTimeText.innerText = "0:00";
         };
 
         speedSlider.oninput = (e) => {
@@ -170,5 +172,32 @@
             speedLabel.innerText = parseFloat(e.target.value).toFixed(1);
         };
 
-        pannerSlider.oninput =
+        pannerSlider.oninput = (e) => {
+            if (pannerNode) pannerNode.pan.value = e.target.value;
+        };
 
+        audio.ontimeupdate = () => {
+            progressBar.value = Math.floor(audio.currentTime);
+            currentTimeText.innerText = formatTime(audio.currentTime);
+        };
+
+        audio.onloadedmetadata = () => {
+            progressBar.max = Math.floor(audio.duration);
+            durationText.innerText = formatTime(audio.duration);
+        };
+
+        progressBar.oninput = (e) => audio.currentTime = e.target.value;
+
+        function formatTime(s) {
+            if (isNaN(s)) return "0:00";
+            const mins = Math.floor(s / 60);
+            const secs = Math.floor(s % 60);
+            return mins + ":" + (secs < 10 ? "0" + secs : secs);
+        }
+    }
+
+    setupPlayer('player-tedeum');
+</script>
+
+</body>
+</html>
